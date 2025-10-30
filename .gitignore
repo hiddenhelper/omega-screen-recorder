@@ -1,0 +1,47 @@
+# Rust
+/target/
+Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Output files (test recordings)
+*.mp4
+*.webm
+*.mov
+*.avi
+*.png
+*.jpg
+*.jpeg
+
+# But keep example outputs in docs if needed
+!docs/**/*.png
+!docs/**/*.jpg
+!examples/**/*.png
+
+# Config files (user-specific)
+config.toml
+.screenrec/
+
+# Build artifacts
+*.pdb
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
