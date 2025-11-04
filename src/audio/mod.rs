@@ -1,3 +1,6 @@
+//! Audio capture module using cpal (available for future use if needed)
+#![allow(dead_code)]
+
 use anyhow::{Context, Result};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{BufferSize, SampleFormat, SampleRate, Stream, StreamConfig};
@@ -5,16 +8,16 @@ use crossbeam_channel::{unbounded, Sender};
 use std::io::Write;
 use std::thread;
 
+#[allow(dead_code)]
 pub struct AudioHandle {
     // These fields keep the resources alive - dropping the handle stops capture
-    #[allow(dead_code)]
     stream: Stream,
-    #[allow(dead_code)]
     writer_thread: thread::JoinHandle<()>,
 }
 
 impl AudioHandle {
     /// Stop audio capture and wait for the writer thread to finish
+    #[allow(dead_code)]
     pub fn stop(self) {
         // Dropping stream stops the audio capture
         drop(self.stream);
@@ -23,6 +26,7 @@ impl AudioHandle {
     }
 }
 
+#[allow(dead_code)]
 pub fn start_default_input_capture<W>(mut writer: W, sample_rate: u32, channels: u16) -> Result<AudioHandle>
 where
     W: Write + Send + 'static,
@@ -74,6 +78,7 @@ where
     Ok(AudioHandle { stream, writer_thread })
 }
 
+#[allow(dead_code)]
 fn build_stream_i16(device: &cpal::Device, config: &StreamConfig, tx: Sender<Vec<i16>>) -> Result<Stream> {
     let err_fn = |e| eprintln!("audio input stream error: {e}");
     let stream = device.build_input_stream(
@@ -88,6 +93,7 @@ fn build_stream_i16(device: &cpal::Device, config: &StreamConfig, tx: Sender<Vec
     Ok(stream)
 }
 
+#[allow(dead_code)]
 fn build_stream_u16(device: &cpal::Device, config: &StreamConfig, tx: Sender<Vec<i16>>) -> Result<Stream> {
     let err_fn = |e| eprintln!("audio input stream error: {e}");
     let stream = device.build_input_stream(
@@ -107,6 +113,7 @@ fn build_stream_u16(device: &cpal::Device, config: &StreamConfig, tx: Sender<Vec
     Ok(stream)
 }
 
+#[allow(dead_code)]
 fn build_stream_f32(device: &cpal::Device, config: &StreamConfig, tx: Sender<Vec<i16>>) -> Result<Stream> {
     let err_fn = |e| eprintln!("audio input stream error: {e}");
     let stream = device.build_input_stream(
@@ -125,3 +132,4 @@ fn build_stream_f32(device: &cpal::Device, config: &StreamConfig, tx: Sender<Vec
     )?;
     Ok(stream)
 }
+
