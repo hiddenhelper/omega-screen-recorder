@@ -1,7 +1,7 @@
 [package]
 name = "screenrec"
 version = "0.1.0"
-edition = "2025"
+edition = "2024"
 authors = ["Your Name <your.email@example.com>"]
 description = "High-performance cross-platform screen recording CLI tool"
 license = "MIT"
@@ -12,36 +12,42 @@ name = "screenrec"
 path = "src/main.rs"
 
 [dependencies]
-# CLI argument parsing - Uncomment and use as needed
-# clap = { version = "4.4", features = ["derive"] }
+clap = { version = "4.5", features = ["derive"] }
+anyhow = "1.0"
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+dirs = "5.0"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
+screenshots = "0.8"
+cfg-if = "1.0"
+cpal = "0.15"
+parking_lot = "0.12.5"
+crossbeam-channel = "0.5.15"
+bytemuck = "1.24.0"
+ctrlc = "3.5.1"
 
-# Async runtime - if you need async operations
-# tokio = { version = "1.35", features = ["full"] }
 
-# Screen capture libraries - Choose based on your approach
+# Optional async runtime (not strictly required for current implementation)
+# tokio = { version = "1.40", features = ["full"] }
+
+# Alternative screen capture libraries (not used by default)
 # scrap = "0.5"
-# screenshot = "0.3"
 
-# Audio capture
+# Audio capture (not used when delegating to ffmpeg CLI)
 # cpal = "0.15"
 
-# Video encoding
-# ffmpeg-next = "6.0"
+# Video encoding via bindings (not used when delegating to ffmpeg CLI)
+# ffmpeg-next = "6.1"
 
 # Serialization for config files
-# serde = { version = "1.0", features = ["derive"] }
-# serde_json = "1.0"
-# toml = "0.8"
 
 # Error handling
-# anyhow = "1.0"
-# thiserror = "1.0"
 
 # Cross-platform support
-# cfg-if = "1.0"
 
 # Image handling
-# image = "0.24"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 # macOS-specific dependencies

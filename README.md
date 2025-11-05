@@ -187,9 +187,19 @@ rust-screenrec-challenge/
 ### Prerequisites
 
 - Rust 1.70+ (latest stable recommended)
-- Platform-specific dependencies:
+- ffmpeg installed and available in PATH
+  - macOS: `brew install ffmpeg`
+  - Windows: Install from `https://www.gyan.dev/ffmpeg/builds/` and add to PATH
+- Platform-specific build tools:
   - **macOS**: Xcode Command Line Tools
   - **Windows**: Visual Studio Build Tools
+
+### Build
+
+```bash
+cargo build --release
+./target/release/screenrec --help
+```
 
 ### Example CLI Interface
 
@@ -199,14 +209,37 @@ Your CLI might look something like this:
 # Take a screenshot
 screenrec screenshot --output ~/Desktop/screenshot.png
 
-# Record video with system audio
-screenrec record --output ~/Desktop/video.mp4 --audio system --duration 60
+# Record with microphone (defaults to built-in mic :1 on macOS)
+screenrec record --output video.mp4 --audio mic --fps 30
 
-# Record with microphone
-screenrec record --output video.webm --audio mic --fps 30
+# Record with microphone using explicit device
+screenrec record --output video.mp4 --audio mic --audio-device ":1" --fps 30
+
+# Record video with system audio(defaults to blackhole :0)
+screenrec record --output ~/Desktop/video.mp4 --audio system --duration 60
 
 # Configure settings
 screenrec config --resolution 1920x1080 --fps 30 --codec h264
+
+### Notes on Audio
+- All audio capture is handled directly by ffmpeg via platform-native APIs (avfoundation on macOS, dshow on Windows).
+- **Microphone input** (`--audio mic`):
+  - **Without `--audio-device`**: Defaults to built-in microphone (`:1` on macOS, `default` on Windows).
+  - **With `--audio-device`**: Uses the specified device (e.g., `--audio-device ":1"` for built-in mic, `:2` for external mic on macOS).
+- **System audio** (`--audio system`):
+  - **macOS**: Requires a loopback device (e.g., BlackHole, Loopback). 
+    - First, list available devices: `ffmpeg -f avfoundation -list_devices true -i ""`
+    - Defaults to `:0` (typically BlackHole if installed), or specify: `--audio system --audio-device ":0"`
+    - **Note**: Without a loopback device, system audio capture may not work. Consider installing BlackHole or Loopback.
+  - **Windows**: Defaults to `virtual-audio-capturer` for system audio, or specify: `--audio system --audio-device "audio=virtual-audio-capturer"`
+
+### A/V Sync
+- Audio and video are automatically synchronized by ffmpeg when using the same input source.
+- For indefinite recordings (no `--duration`), stop with Ctrl+C; ffmpeg will finalize the file and maintain sync.
+
+### Notes on Performance
+- For best results, use release builds (`cargo build --release`).
+- On macOS, hardware video encoding uses `h264_videotoolbox`. On Windows, `h264_nvenc` is attempted; if unavailable, ffmpeg may fall back to software.
 ```
 
 ---
