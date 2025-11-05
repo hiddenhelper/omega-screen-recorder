@@ -53,4 +53,16 @@ pub fn save_config(cfg: &AppConfig) -> Result<()> {
     Ok(())
 }
 
+pub fn clear_config() -> Result<()> {
+    let path = config_file_path()?;
+    if path.exists() {
+        fs::remove_file(&path)
+            .with_context(|| format!("Failed to delete config file: {}", path.display()))?;
+        println!("Configuration cleared successfully.");
+    } else {
+        println!("No configuration file found. Nothing to clear.");
+    }
+    Ok(())
+}
+
 

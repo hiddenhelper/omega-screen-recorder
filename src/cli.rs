@@ -83,6 +83,10 @@ pub struct ConfigArgs {
     /// Default codec (h264 or libvpx-vp9)
     #[arg(long)]
     pub codec: Option<String>,
+    
+    /// Clear/reset all saved configuration
+    #[arg(long)]
+    pub clear: bool,
 }
 
 pub fn parse() -> Cli {

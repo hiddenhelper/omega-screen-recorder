@@ -221,6 +221,12 @@ screenrec record --output ~/Desktop/video.mp4 --audio system --duration 60
 # Configure settings
 screenrec config --resolution 1920x1080 --fps 30 --codec h264
 
+# View current configuration
+screenrec config
+
+# Clear/reset all saved configuration
+screenrec config --clear
+
 ### Notes on Audio
 - All audio capture is handled directly by ffmpeg via platform-native APIs (avfoundation on macOS, dshow on Windows).
 - **Microphone input** (`--audio mic`):

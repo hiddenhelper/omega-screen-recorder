@@ -109,6 +109,12 @@ fn run() -> Result<()> {
             )?;
         }
         cli::Commands::Config(cc) => {
+            // Handle clear/reset
+            if cc.clear {
+                config::clear_config()?;
+                return Ok(());
+            }
+            
             let mut cfg = config::load_config()
                 .context("Loading existing configuration")?;
             
