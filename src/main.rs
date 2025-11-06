@@ -5,80 +5,22 @@ mod encoder;
 mod screenshot;
 mod audio; // Available for future use if needed
 mod error;
+mod validation;
 
 use anyhow::{Context, Result};
 use crate::capture::ScreenRecorder;
-use crate::error::AppError;
-
-fn validate_resolution(res: &str) -> Result<(), AppError> {
-    let parts: Vec<&str> = res.split('x').collect();
-    if parts.len() != 2 {
-        return Err(AppError::InvalidResolutionFormat(res.to_string()));
-    }
-    let width: u32 = parts[0].parse()
-        .map_err(|_| AppError::InvalidResolutionFormat(res.to_string()))?;
-    let height: u32 = parts[1].parse()
-        .map_err(|_| AppError::InvalidResolutionFormat(res.to_string()))?;
-    
-    if width == 0 || height == 0 || width > 7680 || height > 4320 {
-        return Err(AppError::InvalidResolutionFormat(
-            format!("{} (dimensions must be between 1x1 and 7680x4320)", res)
-        ));
-    }
-    Ok(())
-}
-
-fn validate_fps(fps: u32) -> Result<(), AppError> {
-    if fps == 0 || fps > 120 {
-        return Err(AppError::InvalidFps(fps));
-    }
-    Ok(())
-}
-
-fn validate_output_path(path: &str) -> Result<()> {
-    use std::path::Path;
-    let p = Path::new(path);
-    
-    // Check if parent directory exists and is writable
-    if let Some(parent) = p.parent() {
-        if !parent.exists() {
-            return Err(anyhow::anyhow!(
-                "Output directory does not exist: {}",
-                parent.display()
-            ));
-        }
-        // Check if parent is writable (simplified check - try to create a temp file)
-        if !parent.is_dir() {
-            return Err(anyhow::anyhow!(
-                "Output path parent is not a directory: {}",
-                parent.display()
-            ));
-        }
-    }
-    
-    // If file exists, check if it's writable
-    if p.exists() && p.is_file() {
-        use std::fs::OpenOptions;
-        OpenOptions::new()
-            .write(true)
-            .open(p)
-            .with_context(|| format!("Output file exists but is not writable: {}", p.display()))?;
-    }
-    
-    Ok(())
-}
 
 fn run() -> Result<()> {
     let args = cli::parse();
     
     match args.command {
         cli::Commands::Screenshot(sc) => {
-            validate_output_path(&sc.output)
+            validation::validate_output_path(&sc.output)
                 .context("Validating screenshot output path")?;
             screenshot::capture_screenshot(sc.output, sc.monitor)?;
         }
         cli::Commands::Record(rc) => {
-            validate_output_path(&rc.output)
+            validation::validate_output_path(&rc.output)
                 .context("Validating recording output path")?;
             
             // Load saved config
@@ -87,14 +29,14 @@ fn run() -> Result<()> {
             
             // Merge config with CLI args (CLI args override config)
             let fps = rc.fps.or(saved_config.fps).unwrap_or(30);
-            validate_fps(fps)
+            validation::validate_fps(fps)
                 .with_context(|| format!("FPS validation failed: {}", fps))?;
             
             let resolution = rc.resolution.or(saved_config.resolution)
                 .map(|r| r.replace('X', "x")); // Normalize uppercase X to lowercase x
             
             if let Some(ref res) = resolution {
-                validate_resolution(res)
+                validation::validate_resolution(res)
                     .with_context(|| format!("Resolution validation failed: {}", res))?;
             }
             
@@ -141,13 +83,13 @@ fn run() -> Result<()> {
             
             // Update config with provided values (with validation)
             if let Some(fps) = cc.fps {
-                validate_fps(fps)
+                validation::validate_fps(fps)
                     .with_context(|| format!("Invalid FPS: {}", fps))?;
                 cfg.fps = Some(fps);
             }
             if let Some(res) = cc.resolution {
                 let normalized = res.replace('X', "x");
-                validate_resolution(&normalized)
+                validation::validate_resolution(&normalized)
                     .with_context(|| format!("Invalid resolution: {}", res))?;
                 cfg.resolution = Some(normalized);
             }

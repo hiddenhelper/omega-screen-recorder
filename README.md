@@ -172,10 +172,15 @@ rust-screenrec-challenge/
 ├── README.md               # Your documentation
 ├── src/
 │   ├── main.rs            # CLI entry point
+│   ├── cli.rs             # CLI definition layer
+│   ├── error.rs           # Error definition layer
+│   ├── validation.rs      # Validation layer
+│   ├── screenshot.rs      # Screenshot logic
 │   ├── capture/           # Screen capture logic
 │   ├── audio/             # Audio capture logic
 │   ├── encoder/           # Video encoding
-│   └── config/            # Configuration handling
+│   ├── lib.rs             # Exposes the modules
+│   └── config.rs          # Configuration handling
 ├── examples/              # Usage examples (optional)
 └── tests/                 # Unit tests (recommended)
 ```
