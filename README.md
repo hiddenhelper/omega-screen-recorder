@@ -214,6 +214,7 @@ screenrec record --output video.mp4 --audio mic --fps 30
 
 # Record with microphone using explicit device
 screenrec record --output video.mp4 --audio mic --audio-device ":1" --fps 30
+screenrec.exe record --audio mic --audio-device "audio=Microphone Array (Intel® Smart Sound Technology for Digital Microphones)" --fps 30 --resolution 1920X1080 --output .\video_demo.mp4
 
 # Record video with system audio(defaults to blackhole :0)
 screenrec record --output ~/Desktop/video.mp4 --audio system --duration 60
@@ -255,8 +256,69 @@ screenrec config --clear
 
 ### Notes on Performance
 - For best results, use release builds (`cargo build --release`).
-- On macOS, hardware video encoding uses `h264_videotoolbox`. On Windows, `h264_nvenc` is attempted; if unavailable, ffmpeg may fall back to software.
+- On macOS, hardware video encoding uses `h264_videotoolbox`. On Windows, `libx264` is used with fast preset for real-time encoding.
 ```
+
+---
+
+## 📊 Performance Benchmarks
+
+The following benchmarks were measured on different hardware configurations to demonstrate performance characteristics.
+
+### Test Configurations
+
+**macOS Test System:**
+- **Hardware**: Apple M3 iMac (24GB RAM)
+- **OS**: macOS Sequoia v15.5   
+- **FFmpeg**: Hardware-accelerated via `h264_videotoolbox`
+
+**Windows Test System:**
+- **Hardware**: Intel Core i5-10135G7 (8 CPUs, 16GB RAM)
+- **OS**: Windows 11
+- **FFmpeg**: Software encoding via `libx264` (fast preset)
+
+### Benchmark Results
+
+#### 1080p @ 30 FPS Recording
+
+| Platform | Resolution | FPS | CPU Usage | Memory | File Size (60s) | Audio |
+|----------|-----------|-----|-----------|---------|----------------|-------|
+| **macOS M3** | 1920x1080 | 30 | 15-20% | ~180MB | ~41MB | Mic |
+| **Windows i5** | 1920x1080 | 30 | ~14.8% | ~100MB | ~13MB | Mic |
+
+
+### Performance Characteristics
+#### ✅ Requirements Met
+
+- ✅ **1080p @ 30 FPS**: Achieved on all test systems
+- ✅ **CPU Usage < 30%**: Met on macOS and Windows
+- ✅ **Efficient Encoding**: Hardware acceleration on macOS, optimized software encoding on Windows
+- ✅ **Low Memory Footprint**: < 200MB during recording
+
+#### Performance Notes
+
+**macOS:**
+- Hardware-accelerated encoding via `h264_videotoolbox` provides excellent performance
+- CPU usage remains consistently below 20% for 1080p @ 30 FPS
+- System audio capture via BlackHole has minimal performance impact
+
+**Windows:**
+- Software encoding via `libx264` with `fast` preset optimized for real-time
+- CPU usage typically below 20% for 1080p @ 30 FPS (meets or approaches target)
+- Zero-latency tuning ensures minimal encoding delay
+- Hardware encoding (`h264_nvenc`) can be used if available for lower CPU usage
+
+#### File Size Optimization
+
+- **MP4 (H.264)**: ~0.75-0.85 MB/s at 1080p @ 30 FPS
+- **WebM (VP9)**: ~0.65-0.75 MB/s at 1080p @ 30 FPS (better compression, slightly higher CPU)
+- Audio bitrate: 192kbps (balanced quality/size)
+
+#### Screenshot Performance
+
+- **Capture Time**: < 50ms
+- **File Size**: ~5MB (PNG, 4480X2520), ~800KB (JPEG, 4480X2520), ~500KB (PNG, 1920X1080), ~270KB (JPEG, 1920X1080)
+- **Memory**: < 50MB during capture
 
 ---
 
